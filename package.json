@@ -1,0 +1,28 @@
+{
+  "name": "@aspan/sigma",
+  "version": "1.0.3",
+  "description": "",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tsc": "tsc"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^17.0.21",
+    "aws-sdk": "^2.1092.0",
+    "graphql": "^16.3.0",
+    "typescript": "^4.6.2"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "gitHead": "45f4208b7fa0d11b68ba8c0c4fff8e190abfff23",
+  "files": [
+    "lib",
+    "index.js"
+  ],
+  "types": "lib"
+}
