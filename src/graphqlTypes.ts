@@ -23,21 +23,30 @@ export type Scalars = {
   AWSURL: string;
 };
 
+export type Attribute = {
+  __typename?: 'Attribute';
+  name: Scalars['String'];
+  type: InputType;
+};
+
+export type AttributeInput = {
+  name: Scalars['String'];
+  type: InputType;
+};
+
 export type AttributeSortTerm = {
   attribute: Scalars['String'];
   sortOrder: SortOrder;
 };
 
-export type AttributeValueTerm = {
-  __typename?: 'AttributeValueTerm';
-  attribute: Scalars['String'];
-  type: InputType;
+export type AttributeValue = {
+  __typename?: 'AttributeValue';
+  attribute: Attribute;
   value: Scalars['String'];
 };
 
-export type AttributeValueTermInput = {
-  attribute: Scalars['String'];
-  type: InputType;
+export type AttributeValueInput = {
+  attribute: AttributeInput;
   value: Scalars['String'];
 };
 
@@ -60,13 +69,13 @@ export enum InputType {
 
 export type MetaData = {
   __typename?: 'MetaData';
-  attributes?: Maybe<Array<AttributeValueTerm>>;
+  attributes?: Maybe<Array<AttributeValue>>;
   id: Scalars['String'];
   tags?: Maybe<Array<Scalars['String']>>;
 };
 
 export type MetaDataInput = {
-  attributes?: InputMaybe<Array<AttributeValueTermInput>>;
+  attributes?: InputMaybe<Array<AttributeValueInput>>;
   id: Scalars['String'];
   tags?: InputMaybe<Array<Scalars['String']>>;
 };
@@ -207,9 +216,11 @@ export type ResolversTypes = {
   AWSTime: ResolverTypeWrapper<Scalars['AWSTime']>;
   AWSTimestamp: ResolverTypeWrapper<Scalars['AWSTimestamp']>;
   AWSURL: ResolverTypeWrapper<Scalars['AWSURL']>;
+  Attribute: ResolverTypeWrapper<Attribute>;
+  AttributeInput: AttributeInput;
   AttributeSortTerm: AttributeSortTerm;
-  AttributeValueTerm: ResolverTypeWrapper<AttributeValueTerm>;
-  AttributeValueTermInput: AttributeValueTermInput;
+  AttributeValue: ResolverTypeWrapper<AttributeValue>;
+  AttributeValueInput: AttributeValueInput;
   AttributesConnection: ResolverTypeWrapper<AttributesConnection>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   FolderConnection: ResolverTypeWrapper<FolderConnection>;
@@ -236,9 +247,11 @@ export type ResolversParentTypes = {
   AWSTime: Scalars['AWSTime'];
   AWSTimestamp: Scalars['AWSTimestamp'];
   AWSURL: Scalars['AWSURL'];
+  Attribute: Attribute;
+  AttributeInput: AttributeInput;
   AttributeSortTerm: AttributeSortTerm;
-  AttributeValueTerm: AttributeValueTerm;
-  AttributeValueTermInput: AttributeValueTermInput;
+  AttributeValue: AttributeValue;
+  AttributeValueInput: AttributeValueInput;
   AttributesConnection: AttributesConnection;
   Boolean: Scalars['Boolean'];
   FolderConnection: FolderConnection;
@@ -288,9 +301,14 @@ export interface AwsurlScalarConfig extends GraphQLScalarTypeConfig<ResolversTyp
   name: 'AWSURL';
 }
 
-export type AttributeValueTermResolvers<ContextType = any, ParentType extends ResolversParentTypes['AttributeValueTerm'] = ResolversParentTypes['AttributeValueTerm']> = {
-  attribute?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+export type AttributeResolvers<ContextType = any, ParentType extends ResolversParentTypes['Attribute'] = ResolversParentTypes['Attribute']> = {
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['InputType'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
+export type AttributeValueResolvers<ContextType = any, ParentType extends ResolversParentTypes['AttributeValue'] = ResolversParentTypes['AttributeValue']> = {
+  attribute?: Resolver<ResolversTypes['Attribute'], ParentType, ContextType>;
   value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -308,7 +326,7 @@ export type FolderConnectionResolvers<ContextType = any, ParentType extends Reso
 };
 
 export type MetaDataResolvers<ContextType = any, ParentType extends ResolversParentTypes['MetaData'] = ResolversParentTypes['MetaData']> = {
-  attributes?: Resolver<Maybe<Array<ResolversTypes['AttributeValueTerm']>>, ParentType, ContextType>;
+  attributes?: Resolver<Maybe<Array<ResolversTypes['AttributeValue']>>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   tags?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -341,7 +359,8 @@ export type Resolvers<ContextType = any> = {
   AWSTime?: GraphQLScalarType;
   AWSTimestamp?: GraphQLScalarType;
   AWSURL?: GraphQLScalarType;
-  AttributeValueTerm?: AttributeValueTermResolvers<ContextType>;
+  Attribute?: AttributeResolvers<ContextType>;
+  AttributeValue?: AttributeValueResolvers<ContextType>;
   AttributesConnection?: AttributesConnectionResolvers<ContextType>;
   FolderConnection?: FolderConnectionResolvers<ContextType>;
   MetaData?: MetaDataResolvers<ContextType>;
