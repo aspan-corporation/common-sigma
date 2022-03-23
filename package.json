@@ -5,7 +5,10 @@
   "main": "lib/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "tsc": "tsc"
+    "build:tsc": "tsc",
+    "build:version": "npm version patch",
+    "build:publish": "npm publish",
+    "build": "npm run build:tsc && npm run build:version && npm run build:publish"
   },
   "keywords": [],
   "author": "",
