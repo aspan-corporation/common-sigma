@@ -9,7 +9,7 @@
     "build:tsc": "tsc",
     "build:version": "npm version patch",
     "build:publish": "npm publish",
-    "build": "npm run build:tsc && npm run build:version && npm run build:publish"
+    "build": "npm run codegen:run && npm run build:tsc && npm run build:version && npm run build:publish"
   },
   "keywords": [],
   "author": "",
