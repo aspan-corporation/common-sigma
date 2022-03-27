@@ -76,7 +76,6 @@ export type MetaData = {
 
 export type MetaDataInput = {
   attributes?: InputMaybe<Array<AttributeValueInput>>;
-  id: Scalars['String'];
   tags?: InputMaybe<Array<Scalars['String']>>;
 };
 
@@ -87,6 +86,7 @@ export type Mutation = {
 
 
 export type MutationUpdateMetaDataArgs = {
+  id: Scalars['String'];
   metaDataInput?: InputMaybe<MetaDataInput>;
 };
 
@@ -333,7 +333,7 @@ export type MetaDataResolvers<ContextType = any, ParentType extends ResolversPar
 };
 
 export type MutationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
-  updateMetaData?: Resolver<Maybe<ResolversTypes['MetaData']>, ParentType, ContextType, Partial<MutationUpdateMetaDataArgs>>;
+  updateMetaData?: Resolver<Maybe<ResolversTypes['MetaData']>, ParentType, ContextType, RequireFields<MutationUpdateMetaDataArgs, 'id'>>;
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
