@@ -52,7 +52,7 @@ export type AttributeValueInput = {
 
 export type AttributesConnection = {
   __typename?: 'AttributesConnection';
-  attributes?: Maybe<Array<Scalars['String']>>;
+  attributes?: Maybe<Array<Attribute>>;
   nextToken?: Maybe<Scalars['String']>;
 };
 
@@ -314,7 +314,7 @@ export type AttributeValueResolvers<ContextType = any, ParentType extends Resolv
 };
 
 export type AttributesConnectionResolvers<ContextType = any, ParentType extends ResolversParentTypes['AttributesConnection'] = ResolversParentTypes['AttributesConnection']> = {
-  attributes?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
+  attributes?: Resolver<Maybe<Array<ResolversTypes['Attribute']>>, ParentType, ContextType>;
   nextToken?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
