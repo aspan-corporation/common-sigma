@@ -24,7 +24,7 @@ input AttributeValueInput {
 }
 
 type AttributesConnection {
-  attributes: [String!]
+  attributes: [Attribute!]
   nextToken: String
 }
 
