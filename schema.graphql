@@ -23,11 +23,6 @@ input AttributeValueInput {
   value: String!
 }
 
-type AttributesConnection {
-  attributes: [Attribute!]
-  nextToken: String
-}
-
 type FolderConnection {
   items: [MetaData!]
   nextToken: String
@@ -60,8 +55,8 @@ type Query {
     nextToken: String
     pageSize: Int!
   ): FolderConnection
-  getAttributes(nextToken: String): AttributesConnection
-  getTags(nextToken: String): TagsConnection
+  getAttributes: [Attribute!]
+  getTags: [String!]
 }
 
 input SearchInput {
@@ -72,11 +67,6 @@ input SearchInput {
 enum SortOrder {
   ASC
   DESC
-}
-
-type TagsConnection {
-  tags: [String!]
-  nextToken: String
 }
 
 schema {
