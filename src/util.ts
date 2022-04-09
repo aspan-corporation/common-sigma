@@ -9,7 +9,8 @@ export const isKeyExtensionAllowed = (ext: string): boolean =>
 export const getExtension = (key: string): string =>
   extname(key).toLowerCase().slice(1);
 
-export const dynamoTableRipper = async <T, _>({
+// prettier-ignore
+export const dynamoTableRipper = async <T, >({
   tableName,
   processorFn,
 }: {
