@@ -9,15 +9,14 @@ export const isKeyExtensionAllowed = (ext: string): boolean =>
 export const getExtension = (key: string): string =>
   extname(key).toLowerCase().slice(1);
 
-
-export const dynamoTableRipper = async ({
+export const dynamoTableRipper = async <T, _>({
   tableName,
   processorFn,
 }: {
   tableName: string;
-  processorFn: (items: DocumentClient.ItemList) => Array<any>;
-}) => {
-  let result: Array<any> = [];
+  processorFn: (items: DocumentClient.ItemList) => Array<T>;
+}): Promise<Array<T>> => {
+  let result: Array<T> = [];
   let isFetching = true;
   let lastEvaluatedKey: DocumentClient.Key;
 
