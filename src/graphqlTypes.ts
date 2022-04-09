@@ -86,8 +86,8 @@ export type MutationUpdateMetaDataArgs = {
 
 export type Query = {
   __typename?: 'Query';
-  getAttributes?: Maybe<Array<Attribute>>;
-  getTags?: Maybe<Array<Scalars['String']>>;
+  getAttributes: Array<Attribute>;
+  getTags: Array<Scalars['String']>;
   listFolder?: Maybe<FolderConnection>;
   search?: Maybe<FolderConnection>;
 };
@@ -305,8 +305,8 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  getAttributes?: Resolver<Maybe<Array<ResolversTypes['Attribute']>>, ParentType, ContextType>;
-  getTags?: Resolver<Maybe<Array<ResolversTypes['String']>>, ParentType, ContextType>;
+  getAttributes?: Resolver<Array<ResolversTypes['Attribute']>, ParentType, ContextType>;
+  getTags?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   listFolder?: Resolver<Maybe<ResolversTypes['FolderConnection']>, ParentType, ContextType, RequireFields<QueryListFolderArgs, 'pageSize'>>;
   search?: Resolver<Maybe<ResolversTypes['FolderConnection']>, ParentType, ContextType, RequireFields<QuerySearchArgs, 'pageSize' | 'searchInput'>>;
 };
