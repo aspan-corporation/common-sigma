@@ -10,7 +10,7 @@ export const getExtension = (key: string): string =>
   extname(key).toLowerCase().slice(1);
 
 // prettier-ignore
-export const dynamoTableRipper = async <T, >({
+export const dynamoTableRipper = async <T,>({
   tableName,
   processorFn,
 }: {
@@ -29,7 +29,7 @@ export const dynamoTableRipper = async <T, >({
       })
       .promise();
 
-    if (Count) result.concat(processorFn(Items));
+    if (Count) result = result.concat(processorFn(Items));
 
     info(
       `fetched: Count - ${Count}, LastEvaluatedKey - ${JSON.stringify(
