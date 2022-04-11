@@ -55,8 +55,8 @@ type Query {
     nextToken: String
     pageSize: Int!
   ): FolderConnection
-  getAttributes: [Attribute!]!
-  getTags: [String!]!
+  attributes: [Attribute!]!
+  tags: [String!]!
 }
 
 input SearchInput {
