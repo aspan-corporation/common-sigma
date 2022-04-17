@@ -9,6 +9,9 @@ export const isKeyExtensionAllowed = (ext: string): boolean =>
 export const getExtension = (key: string): string =>
   extname(key).toLowerCase().slice(1);
 
+export const getMediaName = (key: string): string =>
+  key.split("/").slice(-1)[0];
+
 // prettier-ignore
 export const dynamoTableRipper = async <T,>({
   tableName,
