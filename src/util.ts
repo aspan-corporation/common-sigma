@@ -32,8 +32,11 @@ export const dynamoTableRipper = async <T,>({
     if (Count) result = result.concat(processorFn(Items));
 
     info(
-      `fetched: Count - ${Count}, LastEvaluatedKey - ${JSON.stringify(
-        LastEvaluatedKey,
+      `dynamoTableRipper ${tableName} fetched: ${JSON.stringify(
+        {
+          LastEvaluatedKey,
+          Count,
+        },
         null,
         2
       )}`
