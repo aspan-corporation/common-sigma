@@ -52,7 +52,8 @@ export type AttributeValueInput = {
 
 export type FolderConnection = {
   __typename?: 'FolderConnection';
-  items?: Maybe<Array<MetaData>>;
+  files?: Maybe<Array<MetaData>>;
+  folders?: Maybe<Array<MetaData>>;
   nextToken?: Maybe<Scalars['String']>;
 };
 
@@ -288,7 +289,8 @@ export type AttributeValueResolvers<ContextType = any, ParentType extends Resolv
 };
 
 export type FolderConnectionResolvers<ContextType = any, ParentType extends ResolversParentTypes['FolderConnection'] = ResolversParentTypes['FolderConnection']> = {
-  items?: Resolver<Maybe<Array<ResolversTypes['MetaData']>>, ParentType, ContextType>;
+  files?: Resolver<Maybe<Array<ResolversTypes['MetaData']>>, ParentType, ContextType>;
+  folders?: Resolver<Maybe<Array<ResolversTypes['MetaData']>>, ParentType, ContextType>;
   nextToken?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
