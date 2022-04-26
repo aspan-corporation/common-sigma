@@ -52,7 +52,7 @@ type Mutation {
 type Query {
   listFolder(id: String, nextToken: String, pageSize: Int!): FolderConnection
   search(
-    searchInput: SearchInput!
+    searchInput: SearchInput
     nextToken: String
     pageSize: Int!
   ): FolderConnection
@@ -61,7 +61,7 @@ type Query {
 }
 
 input SearchInput {
-  filter: MetaDataInput
+  filter: MetaDataInput!
   sorter: [AttributeSortTerm!]
 }
 

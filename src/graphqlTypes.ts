@@ -104,11 +104,11 @@ export type QueryListFolderArgs = {
 export type QuerySearchArgs = {
   nextToken?: InputMaybe<Scalars['String']>;
   pageSize: Scalars['Int'];
-  searchInput: SearchInput;
+  searchInput?: InputMaybe<SearchInput>;
 };
 
 export type SearchInput = {
-  filter?: InputMaybe<MetaDataInput>;
+  filter: MetaDataInput;
   sorter?: InputMaybe<Array<AttributeSortTerm>>;
 };
 
@@ -309,7 +309,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   attributes?: Resolver<Array<ResolversTypes['Attribute']>, ParentType, ContextType>;
   listFolder?: Resolver<Maybe<ResolversTypes['FolderConnection']>, ParentType, ContextType, RequireFields<QueryListFolderArgs, 'pageSize'>>;
-  search?: Resolver<Maybe<ResolversTypes['FolderConnection']>, ParentType, ContextType, RequireFields<QuerySearchArgs, 'pageSize' | 'searchInput'>>;
+  search?: Resolver<Maybe<ResolversTypes['FolderConnection']>, ParentType, ContextType, RequireFields<QuerySearchArgs, 'pageSize'>>;
   tags?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
 };
 
