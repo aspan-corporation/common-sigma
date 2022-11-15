@@ -1,26 +1,16 @@
 input AttributeSortTerm {
-  attribute: String!
+  tag: String!
   sortOrder: SortOrder!
 }
 
-type Attribute {
+type Tag {
   name: String!
-  type: InputType!
+  value: String
 }
 
-input AttributeInput {
+input TagInput {
   name: String!
-  type: InputType!
-}
-
-type AttributeValue {
-  attribute: Attribute!
-  value: String!
-}
-
-input AttributeValueInput {
-  attribute: AttributeInput!
-  value: String!
+  value: String
 }
 
 type FolderConnection {
@@ -29,20 +19,13 @@ type FolderConnection {
   nextToken: String
 }
 
-enum InputType {
-  STRING
-  NUMBER
-}
-
 type MetaData {
   id: String!
-  attributes: [AttributeValue!]
-  tags: [String!]
+  tags: [Tag!]
 }
 
 input MetaDataInput {
-  attributes: [AttributeValueInput!]
-  tags: [String!]
+  tags: [TagInput!]
 }
 
 type Mutation {
@@ -56,8 +39,7 @@ type Query {
     nextToken: String
     pageSize: Int!
   ): FolderConnection
-  attributes: [Attribute!]!
-  tags: [String!]!
+  tags: [Tag!]!
 }
 
 input SearchInput {

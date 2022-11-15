@@ -4,12 +4,11 @@
   "description": "",
   "main": "lib/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build:tsc": "tsc",
     "build:version": "npm version patch",
     "build:publish": "npm publish",
     "codegen:run": "graphql-codegen --config codegen.yaml && cp ./schema.graphql ./lib",
-    "build:1": "npm run codegen:run && npm run build:tsc",
+    "build:1": "rm -rf lib && npm run codegen:run && npm run build:tsc",
     "build:2": "npm run build:version && npm run build:publish"
   },
   "keywords": [],
