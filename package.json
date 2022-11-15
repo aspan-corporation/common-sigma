@@ -1,6 +1,6 @@
 {
   "name": "@aspan/sigma",
-  "version": "1.0.25",
+  "version": "1.0.26",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
