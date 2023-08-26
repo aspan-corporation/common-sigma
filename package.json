@@ -29,8 +29,7 @@
   },
   "gitHead": "45f4208b7fa0d11b68ba8c0c4fff8e190abfff23",
   "files": [
-    "lib",
-    "index.js"
+    "lib"
   ],
   "types": "lib"
 }

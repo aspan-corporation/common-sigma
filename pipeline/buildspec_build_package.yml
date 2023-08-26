@@ -1,4 +1,9 @@
 version: 0.2
+
+env:
+  parameter-store:
+    NPM_TOKEN: /ac/npmjs
+
 phases:
   install:
     runtime-versions:
@@ -14,7 +19,4 @@ phases:
 
 artifacts:
   files:
-    - packaged-test.yaml
-    - packaged-prod.yaml
-    - assume-role.sh
-    - pipeline/*
+    - lib/*
