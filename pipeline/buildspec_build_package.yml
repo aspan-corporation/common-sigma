@@ -20,3 +20,4 @@ artifacts:
     - README.md
     - LICENSE
     - .npmrc
+    - pipeline/buildspec_deploy.yml
