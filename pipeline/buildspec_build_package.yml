@@ -2,7 +2,7 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      python: 3.8
+      nodejs: 18
     commands:
       - npm install
   build:
@@ -10,7 +10,7 @@ phases:
       - rm -rf lib
       - npx graphql-codegen --config codegen.yaml
       - cp ./schema.graphql ./lib
-      - tsc
+      - npx tsc
 
 artifacts:
   files:
