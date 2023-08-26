@@ -3,14 +3,6 @@
   "version": "1.0.26",
   "description": "",
   "main": "lib/index.js",
-  "scripts": {
-    "build:tsc": "tsc",
-    "build:version": "npm version patch",
-    "build:publish": "npm publish",
-    "codegen:run": "graphql-codegen --config codegen.yaml && cp ./schema.graphql ./lib",
-    "build:1": "rm -rf lib && npm run codegen:run && npm run build:tsc",
-    "build:2": "npm run build:version && npm run build:publish"
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -29,7 +21,10 @@
   },
   "gitHead": "45f4208b7fa0d11b68ba8c0c4fff8e190abfff23",
   "files": [
-    "lib"
+    "lib",
+    "package.json",
+    "README.md",
+    "LICENSE"
   ],
   "types": "lib"
 }

@@ -6,3 +6,7 @@
 2. git commit
 3. build:2
 4. git push
+
+
+## Pipeline steps
+1. before pushing changes to repo always run ```npm version```
