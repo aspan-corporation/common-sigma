@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion : '2010-09-09'
+AWSTemplateFormatVersion : 2010-09-09
 Description: >
   This template deploys a CodePipeline with its required resources.
 
@@ -6,33 +6,26 @@ Description: >
   - Source
   - UpdatePipeline
   - BuildAndDeployFeatureStack (FeatureGitBranch only)
-  - BuildAndPackage (MainGitBranch only)
-  - DeployTest (MainGitBranch only)
-  - DeployProd (MainGitBranch only)
+  - BuildAndPackage (GitBranch only)
+  - DeployTest (GitBranch only)
+  - DeployProd (GitBranch only)
 
-  **WARNING** You will be billed for the AWS resources used if you create a stack from this template.
-
-
-# To deploy this template and connect to the main git branch, run this against the leading account:
-# `sam deploy -t codepipeline.yaml --stack-name <stack-name> --capabilities=CAPABILITY_IAM`.
-
-# If later you need to deploy a new CodePipeline to connect to a non-main git branch, run
+# To deploy this template and connect to the main git branch, run this:
 # ```
 # sam deploy -t codepipeline.yaml --stack-name <stack-name> --capabilities=CAPABILITY_IAM \
-#   --parameter-overrides="FeatureGitBranch=<branch-name> CodeStarConnectionArn=<codestar-connection-arn>"
+#   --parameter-overrides="GitBranch=<branch-name> AnotherParameter=<another-parameter-value>"
 # ```
-
 
 Parameters:
   FullRepositoryId:
     Type: String
     Default: "{{cookiecutter.codestar_full_repository_id}}"
-  MainGitBranch:
+  GitBranch:
     Type: String
-    Default: "{{cookiecutter.main_git_branch}}"
+    AllowedPattern : ".+"
   SamTemplate:
     Type: String
-    Default: "{{cookiecutter.sam_template}}"
+    Default: "template.yaml"
   TestingRegion:
     Type: String
     Default: "{{cookiecutter.testing_region}}"
@@ -48,9 +41,6 @@ Parameters:
   TestingArtifactBucket:
     Type: String
     Default: "{{cookiecutter.testing_artifacts_bucket}}"
-  FeatureGitBranch:
-    Type: String
-    Default: ""
 
 Resources:
   #  ____  _            _ _
@@ -63,7 +53,7 @@ Resources:
     Type: AWS::CodePipeline::Pipeline
     Properties:
       ArtifactStore:
-        Location: !Ref PipelineArtifactsBucket
+        Location: !ImportValueValue InfrastructureBucketArn
         Type: S3
       RoleArn: !GetAtt CodePipelineExecutionRole.Arn
       RestartExecutionOnUpdate: true
@@ -77,9 +67,9 @@ Resources:
                 Provider: CodeStarSourceConnection
                 Version: "1"
               Configuration:
-                ConnectionArn: !ImportValue CodeStarConnectionArn
+                ConnectionArn: !ImportValueValue CodeStarConnectionArn
                 FullRepositoryId: !Ref FullRepositoryId
-                BranchName: !If [IsFeatureBranchPipeline, !Ref FeatureGitBranch, !Ref MainGitBranch]
+                BranchName: !Ref GitBranch
               OutputArtifacts:
                 - Name: SourceCodeAsZip
               RunOrder: 1
@@ -93,7 +83,7 @@ Resources:
                 Version: "1"
               Configuration:
                 ActionMode: CHANGE_SET_REPLACE
-                RoleArn: !GetAtt PipelineStackCloudFormationExecutionRole.Arn
+                RoleArn: !ImportValue CloudFormationExecutionRoleArn
                 StackName: !Ref AWS::StackName
                 ChangeSetName: !Sub ${AWS::StackName}-ChangeSet
                 TemplatePath: SourceCodeAsZip::codepipeline.yaml
@@ -114,7 +104,7 @@ Resources:
                 Version: "1"
               Configuration:
                 ActionMode: CHANGE_SET_EXECUTE
-                RoleArn: !GetAtt PipelineStackCloudFormationExecutionRole.Arn
+                RoleArn: !ImportValue CloudFormationExecutionRoleArn
                 StackName: !Ref AWS::StackName
                 ChangeSetName: !Sub ${AWS::StackName}-ChangeSet
               OutputArtifacts:
@@ -165,16 +155,20 @@ Resources:
                   Version: "1"
                 Configuration:
                   ProjectName: !Ref CodeBuildProjectDeploy
-                  EnvironmentVariables: !Sub |
-                    [
-                      {"name": "ENV_TEMPLATE", "value": "packaged-test.yaml"},
-                      {"name": "ENV_REGION", "value": "${TestingRegion}"},
-                      {"name": "ENV_STACK_NAME", "value": "${TestingStackName}"},
-                      {"name": "ENV_PIPELINE_EXECUTION_ROLE", "value": "${TestingPipelineExecutionRole}"},
-                      {"name": "ENV_CLOUDFORMATION_EXECUTION_ROLE", "value": "${TestingCloudFormationExecutionRole}"},
-                      {"name": "ENV_BUCKET", "value": "${TestingArtifactBucket}"},
-                      {"name": "ENV_IMAGE_REPOSITORY", "value": "${TestingImageRepository}"}
-                    ]
+                  EnvironmentVariables:
+                    !Sub
+                      - |
+                        [
+                          {"name": "ENV_TEMPLATE", "value": "packaged-test.yaml"},
+                          {"name": "ENV_REGION", "value": "${TestingRegion}"},
+                          {"name": "ENV_STACK_NAME", "value": "${TestingStackName}"},
+                          {"name": "ENV_PIPELINE_EXECUTION_ROLE", "value": "${CodePipelineExecutionRole}"},
+                          {"name": "ENV_CLOUDFORMATION_EXECUTION_ROLE", "value": "${CloudFormationExecutionRoleArn}"},
+                          {"name": "ENV_BUCKET", "value": "${InfrastructureBucketName}"}
+                        ]
+                      -
+                        CloudFormationExecutionRoleArn: !ImportValue CloudFormationExecutionRoleArn
+                        InfrastructureBucketName: !ImportValue InfrastructureBucketName
                 InputArtifacts:
                   - Name: BuildArtifactAsZip
                 RunOrder: 1
@@ -191,84 +185,11 @@ Resources:
                 RunOrder: 2
           - !Ref AWS::NoValue
 
-  PipelineArtifactsBucket:
-    Type: AWS::S3::Bucket
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
-    Properties:
-      VersioningConfiguration:
-        Status: Enabled
-      LoggingConfiguration:
-        DestinationBucketName:
-          !Ref PipelineArtifactsLoggingBucket
-        LogFilePrefix: "artifacts-logs"
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
-              SSEAlgorithm: AES256
-
-  PipelineArtifactsBucketPolicy:
-    Type: AWS::S3::BucketPolicy
-    Properties:
-      Bucket: !Ref PipelineArtifactsBucket
-      PolicyDocument:
-        Statement:
-          - Effect: "Deny"
-            Action: "s3:*"
-            Principal: "*"
-            Resource:
-              - !Sub  "${PipelineArtifactsBucket.Arn}/*"
-              - !GetAtt PipelineArtifactsBucket.Arn
-            Condition:
-              Bool:
-                aws:SecureTransport: false
-          - Action:
-              - s3:*
-            Effect: Allow
-            Resource:
-              - !Sub arn:${AWS::Partition}:s3:::${PipelineArtifactsBucket}
-              - !Sub arn:${AWS::Partition}:s3:::${PipelineArtifactsBucket}/*
-            Principal:
-              AWS:
-                - !GetAtt CodePipelineExecutionRole.Arn
-
-  PipelineArtifactsLoggingBucket:
-    Type: AWS::S3::Bucket
-    DeletionPolicy: Retain
-    UpdateReplacePolicy: Retain
-    Properties:
-      AccessControl: "LogDeliveryWrite"
-      OwnershipControls:
-        Rules:
-          - ObjectOwnership:  ObjectWriter
-      VersioningConfiguration:
-        Status: Enabled
-      BucketEncryption:
-        ServerSideEncryptionConfiguration:
-          - ServerSideEncryptionByDefault:
-              SSEAlgorithm: AES256
-
-  PipelineArtifactsLoggingBucketPolicy:
-    Type: AWS::S3::BucketPolicy
-    Properties:
-      Bucket: !Ref PipelineArtifactsLoggingBucket
-      PolicyDocument:
-        Statement:
-          - Effect: "Deny"
-            Action: "s3:*"
-            Principal: "*"
-            Resource:
-              - !Sub "${PipelineArtifactsLoggingBucket.Arn}/*"
-              - !GetAtt PipelineArtifactsLoggingBucket.Arn
-            Condition:
-              Bool:
-                aws:SecureTransport: false
-
   CodePipelineExecutionRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: "2012-10-17"
+        Version: 2012-10-17
         Statement:
           - Action:
               - "sts:AssumeRole"
@@ -279,43 +200,41 @@ Resources:
       Policies:
         - PolicyName: CodePipelineAccess
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: 2012-10-17
             Statement:
               - Effect: Allow
                 Action:
-                  - "iam:PassRole"
+                  - iam:PassRole
                 Resource: "*"
         - PolicyName: CodeStarConnectionAccess
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: 2012-10-17
             Statement:
               - Effect: Allow
                 Action:
                   - "codestar-connections:UseConnection"
-                Resource: !ImportValue CodeStarConnectionArn
+                Resource: !Ref CodeStarConnectionArn
         - PolicyName: CodePipelineCodeAndS3Bucket
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: 2012-10-17
             Statement:
               - Action:
                   - s3:GetBucketAcl
                   - s3:GetBucketLocation
                 Effect: Allow
-                Resource:
-                  Fn::GetAtt:
-                    - PipelineArtifactsBucket
-                    - Arn
+                Resource: !GetAtt InfrastructureBucket.Arn
               - Action:
                   - "s3:GetObject"
                   - "s3:GetObjectVersion"
                   - "s3:PutObject"
                 Effect: Allow
-                Resource:
-                  Fn::Sub: ${PipelineArtifactsBucket.Arn}/*
-
+                Resource: 
+                  !Sub
+                    - "${InfrastructureBucketArn}/*"
+                    - InfrastructureBucketArn: !GetAtt InfrastructureBucket.Arn
         - PolicyName: CodePipelineCodeBuildAndCloudformationAccess
           PolicyDocument:
-            Version: "2012-10-17"
+            Version: 2012-10-17
             Statement:
               - Effect: Allow
                 Action:
@@ -357,89 +276,11 @@ Resources:
                 Resource:
                   - !Sub "arn:${AWS::Partition}:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/${AWS::StackName}/*"
 
-  # PipelineStackCloudFormationExecutionRole is used for the pipeline to self mutate
-  PipelineStackCloudFormationExecutionRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          Action: "sts:AssumeRole"
-          Effect: Allow
-          Principal:
-            Service: cloudformation.amazonaws.com
-      Policies:
-        - PolicyName: GrantCloudFormationFullAccess
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action: '*'
-                Resource: '*'
-
   #   ____          _      ____        _ _     _
   #  / ___|___   __| | ___| __ ) _   _(_| | __| |
   # | |   / _ \ / _` |/ _ |  _ \| | | | | |/ _` |
   # | |__| (_) | (_| |  __| |_) | |_| | | | (_| |
   #  \____\___/ \__,_|\___|____/ \__,_|_|_|\__,_|
-  CodeBuildServiceRole:
-    Type: AWS::IAM::Role
-    Properties:
-      Tags:
-        - Key: Role
-          Value: aws-sam-pipeline-codebuild-service-role
-      AssumeRolePolicyDocument:
-        Version: "2012-10-17"
-        Statement:
-          - Action:
-              - "sts:AssumeRole"
-            Effect: Allow
-            Principal:
-              Service:
-                - codebuild.amazonaws.com
-      Policies:
-        - PolicyName: CodeBuildLogs
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - "logs:CreateLogGroup"
-                  - "logs:CreateLogStream"
-                  - "logs:PutLogEvents"
-                Resource:
-                  - !Sub "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/codebuild/*"
-        - PolicyName: CodeBuildArtifactsBucket
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - "s3:GetObject"
-                  - "s3:GetObjectVersion"
-                  - "s3:PutObject"
-                Resource:
-                  - !Sub "arn:${AWS::Partition}:s3:::${PipelineArtifactsBucket}/*"
-        - PolicyName: AssumeStagePipExecutionRoles
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Action:
-                  - sts:AssumeRole
-                Effect: Allow
-                Resource: "*"
-                Condition:
-                  StringEquals:
-                    aws:ResourceTag/Role: pipeline-execution-role
-        - PolicyName: CodeBuildParameterStore
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - "ssm:GetParameters"
-                Resource:
-                  - !Sub "arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/ac/*"
 
   # Uncomment and modify the following step for running the unit-tests
   # CodeBuildProjectUnitTest:
@@ -451,7 +292,7 @@ Resources:
   #       Type: LINUX_CONTAINER
   #       ComputeType: BUILD_GENERAL1_SMALL
   #       Image: aws/codebuild/amazonlinux2-x86_64-standard:5.0
-  #     ServiceRole: !GetAtt CodeBuildServiceRole.Arn
+  #     ServiceRole: !ImportValue CodeBuildServiceRoleArn
   #     Source:
   #       Type: CODEPIPELINE
   #       BuildSpec: pipeline/buildspec_unit_test.yml
@@ -471,22 +312,12 @@ Resources:
           - Name: SAM_TEMPLATE
             Value: !Ref SamTemplate
           - Name: TESTING_REGION
-            Value: !Ref TestingRegion
-          - Name: PROD_REGION
-            Value: !Ref ProdRegion
+            Value: !Sub ${AWS::Region}
           - Name: TESTING_PIPELINE_EXECUTION_ROLE
             Value: !Ref TestingPipelineExecutionRole
-          - Name: PROD_PIPELINE_EXECUTION_ROLE
-            Value: !Ref ProdPipelineExecutionRole
-          - Name: TESTING_ARTIFACT_BUCKET
-            Value: !Ref TestingArtifactBucket
-          - Name: PROD_ARTIFACT_BUCKET
-            Value: !Ref ProdArtifactBucket
-          - Name: TESTING_IMAGE_REPOSITORY
-            Value: !Ref TestingImageRepository
-          - Name: PROD_IMAGE_REPOSITORY
-            Value: !Ref ProdImageRepository
-      ServiceRole: !GetAtt CodeBuildServiceRole.Arn
+          - Name: ARTIFACT_BUCKET
+            Value: !ImportValue InfrastructureBucketName
+      ServiceRole: !ImportValue CodeBuildServiceRoleArn
       Source:
         Type: CODEPIPELINE
         BuildSpec: pipeline/buildspec_build_package.yml
@@ -502,7 +333,7 @@ Resources:
   #       Type: LINUX_CONTAINER
   #       ComputeType: BUILD_GENERAL1_SMALL
   #       Image: aws/codebuild/amazonlinux2-x86_64-standard:5.0
-  #     ServiceRole: !GetAtt CodeBuildServiceRole.Arn
+  #     ServiceRole: !ImportValue CodeBuildServiceRoleArn
   #     Source:
   #       Type: CODEPIPELINE
   #       BuildSpec: pipeline/buildspec_integration_test.yml
@@ -517,7 +348,7 @@ Resources:
         Type: LINUX_CONTAINER
         ComputeType: BUILD_GENERAL1_SMALL
         Image: aws/codebuild/amazonlinux2-x86_64-standard:5.0
-      ServiceRole: !GetAtt CodeBuildServiceRole.Arn
+      ServiceRole: !ImportValue CodeBuildServiceRoleArn
       Source:
         Type: CODEPIPELINE
         BuildSpec: pipeline/buildspec_deploy.yml
