@@ -1,6 +1,4 @@
 #!/bin/bash
-set -e
-
 ROLE=$1
 SESSION_NAME=$2
 
