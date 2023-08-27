@@ -14,8 +14,5 @@ phases:
                     --capabilities CAPABILITY_IAM
                     --region ${ENV_REGION}
                     --s3-bucket ${ENV_BUCKET}
-                    {%- if cookiecutter.testing_image_repository %}
-                    --image-repository ${ENV_IMAGE_REPOSITORY}
-                    {%- endif %}
                     --no-fail-on-empty-changeset
                     --role-arn ${ENV_CLOUDFORMATION_EXECUTION_ROLE}

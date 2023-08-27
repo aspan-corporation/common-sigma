@@ -17,8 +17,5 @@ phases:
                     --capabilities CAPABILITY_IAM
                     --region ${TESTING_REGION}
                     --s3-bucket ${TESTING_ARTIFACT_BUCKET}
-                    {%- if cookiecutter.testing_image_repository %}
-                    --image-repository ${TESTING_IMAGE_REPOSITORY}
-                    {%- endif %}
                     --no-fail-on-empty-changeset
                     --role-arn ${TESTING_CLOUDFORMATION_EXECUTION_ROLE}
