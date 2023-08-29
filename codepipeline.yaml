@@ -6,27 +6,24 @@ Description: >
   - Source
   - UpdatePipeline
   - BuildAndPackage
-  - DeployTest
+  - Deploy
 
 # To deploy this template and connect to the main git branch, run this:
 # ```
 # sam deploy -t codepipeline.yaml --stack-name <stack-name> --capabilities=CAPABILITY_IAM \
-#   --parameter-overrides="GitBranch=<branch-name> AnotherParameter=<another-parameter-value>"
+#   --parameter-overrides="BranchName=<branch-name> AnotherParameter=<another-parameter-value>"
 # ```
 
 Parameters:
   FullRepositoryId:
     Type: String
     AllowedPattern : ".+"
-  GitBranch:
+  BranchName:
     Type: String
     AllowedPattern : ".+"
-  SamTemplate:
-    Type: String
-    Default: "template.yaml"
   Region:
     Type: String
-    AllowedPattern : "us-east-1"
+    Default: "us-east-1"
   StackName:
     Type: String
     AllowedPattern : ".+"
@@ -58,7 +55,7 @@ Resources:
               Configuration:
                 ConnectionArn: !ImportValueValue CodeStarConnectionArn
                 FullRepositoryId: !Ref FullRepositoryId
-                BranchName: !Ref GitBranch
+                BranchName: !Ref BranchName
               OutputArtifacts:
                 - Name: SourceCodeAsZip
               RunOrder: 1
@@ -79,8 +76,7 @@ Resources:
                 Capabilities: CAPABILITY_NAMED_IAM
                 ParameterOverrides: !Sub |
                   {
-                    "FeatureGitBranch": "${FeatureGitBranch}",
-                    "CodeStarConnectionArn": "${CodeStarConnectionArn}"
+                    "BranchName": "${BranchName}"
                   }
               InputArtifacts:
                 - Name: SourceCodeAsZip
@@ -134,9 +130,9 @@ Resources:
 
         - !If
           - IsMainBranchPipeline
-          - Name: DeployTest
+          - Name: Deploy
             Actions:
-              - Name: DeployTest
+              - Name: Deploy
                 ActionTypeId:
                   Category: Build
                   Owner: AWS
@@ -298,8 +294,6 @@ Resources:
         Image: aws/codebuild/amazonlinux2-x86_64-standard:5.0
         PrivilegedMode: true
         EnvironmentVariables:
-          - Name: SAM_TEMPLATE
-            Value: !Ref SamTemplate
           - Name: REGION
             Value: !Sub ${AWS::Region}
           - Name: PIPELINE_EXECUTION_ROLE
