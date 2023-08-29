@@ -23,7 +23,7 @@ Parameters:
     AllowedPattern : ".+"
   Region:
     Type: String
-    AllowedPattern : "us-east-1"
+    Default: "us-east-1"
   StackName:
     Type: String
     AllowedPattern : ".+"
