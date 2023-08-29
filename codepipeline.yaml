@@ -5,10 +5,8 @@ Description: >
   The following stages are predefined in this template:
   - Source
   - UpdatePipeline
-  - BuildAndDeployFeatureStack (FeatureGitBranch only)
-  - BuildAndPackage (GitBranch only)
-  - DeployTest (GitBranch only)
-  - DeployProd (GitBranch only)
+  - BuildAndPackage
+  - DeployTest
 
 # To deploy this template and connect to the main git branch, run this:
 # ```
@@ -19,28 +17,19 @@ Description: >
 Parameters:
   FullRepositoryId:
     Type: String
-    Default: "{{cookiecutter.codestar_full_repository_id}}"
+    AllowedPattern : ".+"
   GitBranch:
     Type: String
     AllowedPattern : ".+"
   SamTemplate:
     Type: String
     Default: "template.yaml"
-  TestingRegion:
+  Region:
     Type: String
-    Default: "{{cookiecutter.testing_region}}"
-  TestingStackName:
+    AllowedPattern : "us-east-1"
+  StackName:
     Type: String
-    Default: "{{cookiecutter.testing_stack_name}}"
-  TestingPipelineExecutionRole:
-    Type: String
-    Default: "{{cookiecutter.testing_pipeline_execution_role}}"
-  TestingCloudFormationExecutionRole:
-    Type: String
-    Default: "{{cookiecutter.testing_cloudformation_execution_role}}"
-  TestingArtifactBucket:
-    Type: String
-    Default: "{{cookiecutter.testing_artifacts_bucket}}"
+    AllowedPattern : ".+"
 
 Resources:
   #  ____  _            _ _
@@ -161,7 +150,7 @@ Resources:
                         [
                           {"name": "ENV_TEMPLATE", "value": "packaged-test.yaml"},
                           {"name": "ENV_REGION", "value": "${TestingRegion}"},
-                          {"name": "ENV_STACK_NAME", "value": "${TestingStackName}"},
+                          {"name": "ENV_STACK_NAME", "value": "${StackName}"},
                           {"name": "ENV_PIPELINE_EXECUTION_ROLE", "value": "${CodePipelineExecutionRole}"},
                           {"name": "ENV_CLOUDFORMATION_EXECUTION_ROLE", "value": "${CloudFormationExecutionRoleArn}"},
                           {"name": "ENV_BUCKET", "value": "${InfrastructureBucketName}"}
@@ -311,10 +300,10 @@ Resources:
         EnvironmentVariables:
           - Name: SAM_TEMPLATE
             Value: !Ref SamTemplate
-          - Name: TESTING_REGION
+          - Name: REGION
             Value: !Sub ${AWS::Region}
-          - Name: TESTING_PIPELINE_EXECUTION_ROLE
-            Value: !Ref TestingPipelineExecutionRole
+          - Name: PIPELINE_EXECUTION_ROLE
+            Value: !ImportValue PipelineExecutionRoleArn
           - Name: ARTIFACT_BUCKET
             Value: !ImportValue InfrastructureBucketName
       ServiceRole: !ImportValue CodeBuildServiceRoleArn
