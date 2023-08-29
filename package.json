@@ -1,11 +1,14 @@
 {
-  "name": "@aspan/sigma",
+  "name": "@aspan/ac-sigma",
   "version": "2.0.0",
   "description": "",
   "main": "lib/index.js",
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "scripts": {
+    "pipeline:add": "git remote add origin_pipeline https://github.com/anurtayev/ac-template-pipeline.git && git fetch && git merge origin_pipeline/main"
+  },
   "devDependencies": {
     "@graphql-codegen/cli": "^2.6.2",
     "@graphql-codegen/introspection": "^2.1.1",
