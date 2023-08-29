@@ -6,7 +6,7 @@ Description: >
   - Source
   - UpdatePipeline
   - BuildAndPackage
-  - DeployTest
+  - Deploy
 
 # To deploy this template and connect to the main git branch, run this:
 # ```
@@ -130,9 +130,9 @@ Resources:
 
         - !If
           - IsMainBranchPipeline
-          - Name: DeployTest
+          - Name: Deploy
             Actions:
-              - Name: DeployTest
+              - Name: Deploy
                 ActionTypeId:
                   Category: Build
                   Owner: AWS
