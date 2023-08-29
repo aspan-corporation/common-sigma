@@ -7,7 +7,7 @@
   "author": "",
   "license": "ISC",
   "scripts": {
-    "pipeline:add": "git remote add origin_pipeline https://github.com/anurtayev/ac-template-pipeline.git && git fetch && git merge origin_pipeline/main"
+    "pipeline:add": "git pull https://github.com/anurtayev/ac-template-pipeline.git --no-ff --allow-unrelated-histories"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^2.6.2",
