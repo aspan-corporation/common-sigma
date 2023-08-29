@@ -39,7 +39,7 @@ Resources:
     Type: AWS::CodePipeline::Pipeline
     Properties:
       ArtifactStore:
-        Location: !ImportValueValue InfrastructureBucketArn
+        Location: !ImportValue InfrastructureBucketArn
         Type: S3
       RoleArn: !GetAtt CodePipelineExecutionRole.Arn
       RestartExecutionOnUpdate: true
@@ -53,7 +53,7 @@ Resources:
                 Provider: CodeStarSourceConnection
                 Version: "1"
               Configuration:
-                ConnectionArn: !ImportValueValue CodeStarConnectionArn
+                ConnectionArn: !ImportValue CodeStarConnectionArn
                 FullRepositoryId: !Ref FullRepositoryId
                 BranchName: !Ref BranchName
               OutputArtifacts:
@@ -110,65 +110,59 @@ Resources:
         #       InputArtifacts:
         #         - Name: SourceCodeAsZip
 
-        - !If
-          - IsMainBranchPipeline
-          - Name: BuildAndPackage
-            Actions:
-              - Name: CodeBuild
-                ActionTypeId:
-                  Category: Build
-                  Owner: AWS
-                  Provider: CodeBuild
-                  Version: "1"
-                Configuration:
-                  ProjectName: !Ref CodeBuildProjectBuildAndPackage
-                InputArtifacts:
-                  - Name: SourceCodeAsZip
-                OutputArtifacts:
-                  - Name: BuildArtifactAsZip
-          - !Ref AWS::NoValue
+        - Name: BuildAndPackage
+          Actions:
+            - Name: CodeBuild
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: "1"
+              Configuration:
+                ProjectName: !Ref CodeBuildProjectBuildAndPackage
+              InputArtifacts:
+                - Name: SourceCodeAsZip
+              OutputArtifacts:
+                - Name: BuildArtifactAsZip
 
-        - !If
-          - IsMainBranchPipeline
-          - Name: Deploy
-            Actions:
-              - Name: Deploy
-                ActionTypeId:
-                  Category: Build
-                  Owner: AWS
-                  Provider: CodeBuild
-                  Version: "1"
-                Configuration:
-                  ProjectName: !Ref CodeBuildProjectDeploy
-                  EnvironmentVariables:
-                    !Sub
-                      - |
-                        [
-                          {"name": "ENV_TEMPLATE", "value": "packaged-test.yaml"},
-                          {"name": "ENV_REGION", "value": "${TestingRegion}"},
-                          {"name": "ENV_STACK_NAME", "value": "${StackName}"},
-                          {"name": "ENV_PIPELINE_EXECUTION_ROLE", "value": "${CodePipelineExecutionRole}"},
-                          {"name": "ENV_CLOUDFORMATION_EXECUTION_ROLE", "value": "${CloudFormationExecutionRoleArn}"},
-                          {"name": "ENV_BUCKET", "value": "${InfrastructureBucketName}"}
-                        ]
-                      -
-                        CloudFormationExecutionRoleArn: !ImportValue CloudFormationExecutionRoleArn
-                        InfrastructureBucketName: !ImportValue InfrastructureBucketName
-                InputArtifacts:
-                  - Name: BuildArtifactAsZip
-                RunOrder: 1
-              - Name: IntegrationTest
-                ActionTypeId:
-                  Category: Build
-                  Owner: AWS
-                  Provider: CodeBuild
-                  Version: "1"
-                Configuration:
-                  ProjectName: !Ref CodeBuildProjectIntegrationTest
-                InputArtifacts:
-                  - Name: SourceCodeAsZip
-                RunOrder: 2
-          - !Ref AWS::NoValue
+        - Name: Deploy
+          Actions:
+            - Name: Deploy
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: "1"
+              Configuration:
+                ProjectName: !Ref CodeBuildProjectDeploy
+                EnvironmentVariables:
+                  !Sub
+                    - |
+                      [
+                        {"name": "ENV_TEMPLATE", "value": "packaged-test.yaml"},
+                        {"name": "ENV_REGION", "value": "${Region}"},
+                        {"name": "ENV_STACK_NAME", "value": "${StackName}"},
+                        {"name": "ENV_PIPELINE_EXECUTION_ROLE", "value": "${CodePipelineExecutionRole}"},
+                        {"name": "ENV_CLOUDFORMATION_EXECUTION_ROLE", "value": "${CloudFormationExecutionRoleArn}"},
+                        {"name": "ENV_BUCKET", "value": "${InfrastructureBucketName}"}
+                      ]
+                    -
+                      CloudFormationExecutionRoleArn: !ImportValue CloudFormationExecutionRoleArn
+                      InfrastructureBucketName: !ImportValue InfrastructureBucketName
+              InputArtifacts:
+                - Name: BuildArtifactAsZip
+              RunOrder: 1
+            #- Name: IntegrationTest
+            #  ActionTypeId:
+            #    Category: Build
+            #    Owner: AWS
+            #    Provider: CodeBuild
+            #    Version: "1"
+            #  Configuration:
+            #    ProjectName: !Ref CodeBuildProjectIntegrationTest
+            #  InputArtifacts:
+            #    - Name: SourceCodeAsZip
+            #  RunOrder: 2
 
   CodePipelineExecutionRole:
     Type: AWS::IAM::Role
@@ -198,7 +192,7 @@ Resources:
               - Effect: Allow
                 Action:
                   - "codestar-connections:UseConnection"
-                Resource: !Ref CodeStarConnectionArn
+                Resource: !ImportValue CodeStarConnectionArn
         - PolicyName: CodePipelineCodeAndS3Bucket
           PolicyDocument:
             Version: 2012-10-17
@@ -207,7 +201,7 @@ Resources:
                   - s3:GetBucketAcl
                   - s3:GetBucketLocation
                 Effect: Allow
-                Resource: !GetAtt InfrastructureBucket.Arn
+                Resource: !ImportValue InfrastructureBucketArn
               - Action:
                   - "s3:GetObject"
                   - "s3:GetObjectVersion"
@@ -216,7 +210,7 @@ Resources:
                 Resource: 
                   !Sub
                     - "${InfrastructureBucketArn}/*"
-                    - InfrastructureBucketArn: !GetAtt InfrastructureBucket.Arn
+                    - InfrastructureBucketArn: !ImportValue InfrastructureBucketArn
         - PolicyName: CodePipelineCodeBuildAndCloudformationAccess
           PolicyDocument:
             Version: 2012-10-17
@@ -226,25 +220,10 @@ Resources:
                   - "codebuild:StartBuild"
                   - "codebuild:BatchGetBuilds"
                 Resource:
-                  # Uncomment the line below to enable the unit-tests
                   # - !GetAtt CodeBuildProjectUnitTest.Arn
-                  - !If
-                    - IsFeatureBranchPipeline
-                    - !GetAtt CodeBuildProjectBuildAndDeployFeature.Arn
-                    - !Ref AWS::NoValue
-                  - !If
-                    - IsMainBranchPipeline
-                    - !GetAtt CodeBuildProjectBuildAndPackage.Arn
-                    - !Ref AWS::NoValue
-                  # Uncomment the following step for running the integration tests
-                  # - !If
-                  #   - IsMainBranchPipeline
-                  #   - !GetAtt CodeBuildProjectIntegrationTest.Arn
-                  #   - !Ref AWS::NoValue
-                  - !If
-                    - IsMainBranchPipeline
-                    - !GetAtt CodeBuildProjectDeploy.Arn
-                    - !Ref AWS::NoValue
+                  - !GetAtt CodeBuildProjectBuildAndPackage.Arn
+                  # - !GetAtt CodeBuildProjectIntegrationTest.Arn
+                  - !GetAtt CodeBuildProjectDeploy.Arn
               - Effect: Allow
                 Action:
                   - "cloudformation:CreateStack"
@@ -283,7 +262,6 @@ Resources:
   #       BuildSpec: pipeline/buildspec_unit_test.yml
 
   CodeBuildProjectBuildAndPackage:
-    Condition: IsMainBranchPipeline
     Type: AWS::CodeBuild::Project
     Properties:
       Artifacts:
@@ -297,7 +275,7 @@ Resources:
           - Name: REGION
             Value: !Sub ${AWS::Region}
           - Name: PIPELINE_EXECUTION_ROLE
-            Value: !ImportValue PipelineExecutionRoleArn
+            Value: !Ref CodePipelineExecutionRole
           - Name: ARTIFACT_BUCKET
             Value: !ImportValue InfrastructureBucketName
       ServiceRole: !ImportValue CodeBuildServiceRoleArn
@@ -307,7 +285,6 @@ Resources:
 
   # Uncomment and modify the following step for running the integration tests
   # CodeBuildProjectIntegrationTest:
-  #   Condition: IsMainBranchPipeline
   #   Type: AWS::CodeBuild::Project
   #   Properties:
   #     Artifacts:
@@ -322,7 +299,6 @@ Resources:
   #       BuildSpec: pipeline/buildspec_integration_test.yml
 
   CodeBuildProjectDeploy:
-    Condition: IsMainBranchPipeline
     Type: AWS::CodeBuild::Project
     Properties:
       Artifacts:
