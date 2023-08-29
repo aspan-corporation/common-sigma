@@ -1,0 +1,20 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      nodejs: 18
+    commands:
+      - echo 'Running install'
+  build:
+    commands:
+      - sam build --use-container --template ${SAM_TEMPLATE}
+      - . ./assume-role.sh ${PIPELINE_EXECUTION_ROLE} test-package
+      - sam package --s3-bucket ${ARTIFACT_BUCKET}
+                    --region ${REGION}
+                    --output-template-file packaged-test.yaml
+artifacts:
+  files:
+    - packaged-test.yaml
+    - packaged-prod.yaml
+    - assume-role.sh
+    - pipeline/*
