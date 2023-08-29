@@ -7,7 +7,10 @@
   "author": "",
   "license": "ISC",
   "scripts": {
-    "pipeline:add": "git pull https://github.com/anurtayev/ac-template-pipeline.git --no-ff --allow-unrelated-histories"
+    "pipeline:add": "git pull https://github.com/anurtayev/ac-template-pipeline.git --no-ff --allow-unrelated-histories",
+    "pipeline:deploy": "sam deploy -t codepipeline.yaml --stack-name <stack-name> --capabilities=CAPABILITY_IAM --parameter-overrides='GitBranch=<branch-name> AnotherParameter=<another-parameter-value>'",
+    "git:reponame": "git remote show origin | head -n 2 | tail -n 1 | awk -F '/' '{print $4 \"/\" $5}' | awk -F '.' '{print $1}'",
+    "git:branchname": "export BRANCH=`git rev-parse --abbrev-ref HEAD`"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^2.6.2",
