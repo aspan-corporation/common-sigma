@@ -39,7 +39,7 @@ Resources:
     Type: AWS::CodePipeline::Pipeline
     Properties:
       ArtifactStore:
-        Location: !ImportValue InfrastructureBucketArn
+        Location: !ImportValue InfrastructureBucketName
         Type: S3
       RoleArn: !GetAtt CodePipelineExecutionRole.Arn
       RestartExecutionOnUpdate: true
@@ -76,7 +76,9 @@ Resources:
                 Capabilities: CAPABILITY_NAMED_IAM
                 ParameterOverrides: !Sub |
                   {
-                    "BranchName": "${BranchName}"
+                    "BranchName": "${BranchName}",
+                    "FullRepositoryId": "${FullRepositoryId}",
+                    "StackName": "${StackName}"
                   }
               InputArtifacts:
                 - Name: SourceCodeAsZip
@@ -274,8 +276,6 @@ Resources:
         EnvironmentVariables:
           - Name: REGION
             Value: !Sub ${AWS::Region}
-          - Name: PIPELINE_EXECUTION_ROLE
-            Value: !Ref CodePipelineExecutionRole
           - Name: ARTIFACT_BUCKET
             Value: !ImportValue InfrastructureBucketName
       ServiceRole: !ImportValue CodeBuildServiceRoleArn
