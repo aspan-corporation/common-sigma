@@ -74,12 +74,16 @@ Resources:
                 ChangeSetName: !Sub ${AWS::StackName}-ChangeSet
                 TemplatePath: SourceCodeAsZip::codepipeline.yaml
                 Capabilities: CAPABILITY_NAMED_IAM
-                ParameterOverrides: !Sub |
-                  {
-                    "BranchName": "${BranchName}",
-                    "FullRepositoryId": "${FullRepositoryId}",
-                    "StackName": "${StackName}"
-                  }
+                ParameterOverrides:
+                  !Sub
+                    - |
+                      {
+                        "BranchName": "${BranchName}",
+                        "FullRepositoryId": "${FullRepositoryId}",
+                        "StackName": "${StackName}"
+                      }
+                    - 
+                      StackName: !Ref AWS::StackName
               InputArtifacts:
                 - Name: SourceCodeAsZip
               RunOrder: 1
