@@ -19,7 +19,7 @@ echo "AWS_REGION: ${AWS_REGION}"
 echo "BRANCH_HASH: ${BRANCH_HASH}"
 
 sam deploy -t codepipeline.yaml \
-    --stack-name $REPOSITORY_NAME-pipeline \
+    --stack-name $REPOSITORY_NAME \
     --region $AWS_REGION \
     --capabilities=CAPABILITY_IAM \
     --parameter-overrides="FullRepositoryId=${FULL_REPOSITORY_ID} BranchName=${BRANCH_NAME} Region=${AWS_REGION} StackName=${REPOSITORY_NAME}-${BRANCH_HASH}"
