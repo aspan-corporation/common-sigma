@@ -1,17 +1,28 @@
 version: 0.2
 
+env:
+  parameter-store:
+    NPM_TOKEN: /ac/npmjs
+
 phases:
   install:
     runtime-versions:
       nodejs: 18
     commands:
       - npm install
+  pre_build:
+    commands:
+      - echo pre_build
   build:
     commands:
       - rm -rf lib
-      - npx graphql-codegen --config codegen.yaml
+      - npm run graphql:generate
       - cp ./schema.graphql ./lib
       - npx tsc
+      - npm publish
+  post_build:
+    commands:
+      - echo post_build
 
 artifacts:
   files:

@@ -1,12 +1,6 @@
 AWSTemplateFormatVersion : 2010-09-09
 Description: >
-  This template deploys a CodePipeline with its required resources.
-
-  The following stages are predefined in this template:
-  - Source
-  - UpdatePipeline
-  - BuildAndPackage
-  - Deploy
+  ac-sigma pipeline
 
 # To deploy this template and connect to the main git branch, run this:
 # ```
@@ -58,7 +52,7 @@ Resources:
                 BranchName: !Ref BranchName
               OutputArtifacts:
                 - Name: SourceCodeAsZip
-              RunOrder: 1
+
         - Name: UpdatePipeline
           Actions:
             - Name: CreateChangeSet
@@ -72,7 +66,7 @@ Resources:
                 RoleArn: !ImportValue CloudFormationExecutionRoleArn
                 StackName: !Ref AWS::StackName
                 ChangeSetName: !Sub ${AWS::StackName}-ChangeSet
-                TemplatePath: SourceCodeAsZip::codepipeline.yaml
+                TemplatePath: SourceCodeAsZip::codepipeline.yml
                 Capabilities: CAPABILITY_NAMED_IAM
                 ParameterOverrides:
                   !Sub
@@ -102,20 +96,6 @@ Resources:
                 - Name: !Sub ${AWS::StackName}ChangeSet
               RunOrder: 2
 
-        # Uncomment and modify the following step for running the unit-tests
-        # - Name: UnitTest
-        #   Actions:
-        #     - Name: UnitTest
-        #       ActionTypeId:
-        #         Category: Build
-        #         Owner: AWS
-        #         Provider: CodeBuild
-        #         Version: "1"
-        #       Configuration:
-        #         ProjectName: !Ref CodeBuildProjectUnitTest
-        #       InputArtifacts:
-        #         - Name: SourceCodeAsZip
-
         - Name: BuildAndPackage
           Actions:
             - Name: CodeBuild
@@ -125,50 +105,11 @@ Resources:
                 Provider: CodeBuild
                 Version: "1"
               Configuration:
-                ProjectName: !Ref CodeBuildProjectBuildAndPackage
+                ProjectName: !Ref CodeBuildProjectBuildAndDeploy
               InputArtifacts:
                 - Name: SourceCodeAsZip
               OutputArtifacts:
                 - Name: BuildArtifactAsZip
-
-        - Name: Deploy
-          Actions:
-            - Name: Deploy
-              ActionTypeId:
-                Category: Build
-                Owner: AWS
-                Provider: CodeBuild
-                Version: "1"
-              Configuration:
-                ProjectName: !Ref CodeBuildProjectDeploy
-                EnvironmentVariables:
-                  !Sub
-                    - |
-                      [
-                        {"name": "ENV_TEMPLATE", "value": "packaged-test.yaml"},
-                        {"name": "ENV_REGION", "value": "${Region}"},
-                        {"name": "ENV_STACK_NAME", "value": "${StackName}"},
-                        {"name": "ENV_PIPELINE_EXECUTION_ROLE", "value": "${CodePipelineExecutionRole}"},
-                        {"name": "ENV_CLOUDFORMATION_EXECUTION_ROLE", "value": "${CloudFormationExecutionRoleArn}"},
-                        {"name": "ENV_BUCKET", "value": "${InfrastructureBucketName}"}
-                      ]
-                    -
-                      CloudFormationExecutionRoleArn: !ImportValue CloudFormationExecutionRoleArn
-                      InfrastructureBucketName: !ImportValue InfrastructureBucketName
-              InputArtifacts:
-                - Name: BuildArtifactAsZip
-              RunOrder: 1
-            #- Name: IntegrationTest
-            #  ActionTypeId:
-            #    Category: Build
-            #    Owner: AWS
-            #    Provider: CodeBuild
-            #    Version: "1"
-            #  Configuration:
-            #    ProjectName: !Ref CodeBuildProjectIntegrationTest
-            #  InputArtifacts:
-            #    - Name: SourceCodeAsZip
-            #  RunOrder: 2
 
   CodePipelineExecutionRole:
     Type: AWS::IAM::Role
@@ -226,10 +167,7 @@ Resources:
                   - "codebuild:StartBuild"
                   - "codebuild:BatchGetBuilds"
                 Resource:
-                  # - !GetAtt CodeBuildProjectUnitTest.Arn
-                  - !GetAtt CodeBuildProjectBuildAndPackage.Arn
-                  # - !GetAtt CodeBuildProjectIntegrationTest.Arn
-                  - !GetAtt CodeBuildProjectDeploy.Arn
+                  - !GetAtt CodeBuildProjectBuildAndDeploy.Arn
               - Effect: Allow
                 Action:
                   - "cloudformation:CreateStack"
@@ -252,22 +190,7 @@ Resources:
   # | |__| (_) | (_| |  __| |_) | |_| | | | (_| |
   #  \____\___/ \__,_|\___|____/ \__,_|_|_|\__,_|
 
-  # Uncomment and modify the following step for running the unit-tests
-  # CodeBuildProjectUnitTest:
-  #   Type: AWS::CodeBuild::Project
-  #   Properties:
-  #     Artifacts:
-  #       Type: CODEPIPELINE
-  #     Environment:
-  #       Type: LINUX_CONTAINER
-  #       ComputeType: BUILD_GENERAL1_SMALL
-  #       Image: aws/codebuild/amazonlinux2-x86_64-standard:5.0
-  #     ServiceRole: !ImportValue CodeBuildServiceRoleArn
-  #     Source:
-  #       Type: CODEPIPELINE
-  #       BuildSpec: pipeline/buildspec_unit_test.yml
-
-  CodeBuildProjectBuildAndPackage:
+  CodeBuildProjectBuildAndDeploy:
     Type: AWS::CodeBuild::Project
     Properties:
       Artifacts:
@@ -286,32 +209,3 @@ Resources:
       Source:
         Type: CODEPIPELINE
         BuildSpec: pipeline/buildspec_build_package.yml
-
-  # Uncomment and modify the following step for running the integration tests
-  # CodeBuildProjectIntegrationTest:
-  #   Type: AWS::CodeBuild::Project
-  #   Properties:
-  #     Artifacts:
-  #       Type: CODEPIPELINE
-  #     Environment:
-  #       Type: LINUX_CONTAINER
-  #       ComputeType: BUILD_GENERAL1_SMALL
-  #       Image: aws/codebuild/amazonlinux2-x86_64-standard:5.0
-  #     ServiceRole: !ImportValue CodeBuildServiceRoleArn
-  #     Source:
-  #       Type: CODEPIPELINE
-  #       BuildSpec: pipeline/buildspec_integration_test.yml
-
-  CodeBuildProjectDeploy:
-    Type: AWS::CodeBuild::Project
-    Properties:
-      Artifacts:
-        Type: CODEPIPELINE
-      Environment:
-        Type: LINUX_CONTAINER
-        ComputeType: BUILD_GENERAL1_SMALL
-        Image: aws/codebuild/amazonlinux2-x86_64-standard:5.0
-      ServiceRole: !ImportValue CodeBuildServiceRoleArn
-      Source:
-        Type: CODEPIPELINE
-        BuildSpec: pipeline/buildspec_deploy.yml
