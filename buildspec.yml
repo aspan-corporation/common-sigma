@@ -1,9 +1,5 @@
 version: 0.2
 
-env:
-  parameter-store:
-    NPM_TOKEN: /ac/npmjs
-
 phases:
   install:
     runtime-versions:

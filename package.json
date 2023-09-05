@@ -1,8 +1,7 @@
 {
-  "name": "@aspan/ac-sigma",
+  "name": "common-lib",
   "version": "2.0.2",
   "description": "",
-  "main": "lib/index.js",
   "keywords": [],
   "author": "",
   "license": "Apache License 2.0",
@@ -10,7 +9,8 @@
     "pipeline:create": "./codepipeline-create.sh",
     "pipeline:delete": "./codepipeline-delete.sh",
     "pipeline:params": "./codepipeline-params.sh",
-    "graphql:generate": "npx graphql-codegen --config codegen.yml"
+    "graphql:generate": "npx graphql-codegen --config codegen.yml",
+    "graphql:transpile": "npx tsc"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^2.6.2",
@@ -24,12 +24,5 @@
   "publishConfig": {
     "access": "public"
   },
-  "gitHead": "45f4208b7fa0d11b68ba8c0c4fff8e190abfff23",
-  "files": [
-    "lib",
-    "package.json",
-    "README.md",
-    "LICENSE"
-  ],
   "types": "lib"
 }
