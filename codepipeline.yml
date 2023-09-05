@@ -15,9 +15,6 @@ Parameters:
   BranchName:
     Type: String
     AllowedPattern : ".+"
-  Region:
-    Type: String
-    Default: "us-east-1"
   StackName:
     Type: String
     AllowedPattern : ".+"

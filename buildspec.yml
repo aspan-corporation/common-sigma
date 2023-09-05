@@ -15,7 +15,6 @@ phases:
       - echo pre_build
   build:
     commands:
-      - rm -rf lib
       - npm run graphql:generate
       - cp ./schema.graphql ./lib
       - npx tsc
@@ -23,12 +22,3 @@ phases:
   post_build:
     commands:
       - echo post_build
-
-artifacts:
-  files:
-    - lib/*
-    - package.json
-    - README.md
-    - LICENSE
-    - .npmrc
-    - pipeline/buildspec_deploy.yml
