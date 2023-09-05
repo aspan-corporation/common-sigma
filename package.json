@@ -7,7 +7,9 @@
   "author": "",
   "license": "Apache License 2.0",
   "scripts": {
-    "bootstrap": "./create-pipeline.sh",
+    "pipeline:create": "./codepipeline-create.sh",
+    "pipeline:delete": "./codepipeline-delete.sh",
+    "pipeline:params": "./codepipeline-params.sh",
     "graphql:generate": "npx graphql-codegen --config codegen.yml"
   },
   "devDependencies": {
