@@ -93,7 +93,7 @@ Resources:
                 - Name: !Sub ${AWS::StackName}ChangeSet
               RunOrder: 2
 
-        - Name: BuildAndPackage
+        - Name: BuildAndDeploy
           Actions:
             - Name: CodeBuild
               ActionTypeId:
