@@ -1,3 +1,3 @@
 # Aspan Corporation code sharing
 
-All shared code will be develivered as a Lambda Layer
+All shared code will be delivered as a Lambda Layer

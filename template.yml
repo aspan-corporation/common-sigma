@@ -1,0 +1,38 @@
+AWSTemplateFormatVersion : 2010-09-09
+Description: >
+  ac-sigma pipeline
+
+# To deploy this template and connect to the main git branch, run this:
+# ```
+# sam deploy -t codepipeline.yaml --stack-name <stack-name> --capabilities=CAPABILITY_IAM \
+#   --parameter-overrides="BranchName=<branch-name> AnotherParameter=<another-parameter-value>"
+# ```
+
+Parameters:
+  FullRepositoryId:
+    Type: String
+    AllowedPattern : ".+"
+  BranchName:
+    Type: String
+    AllowedPattern : ".+"
+  StackName:
+    Type: String
+    AllowedPattern : ".+"
+  ComponentStackName:
+    Type: String
+    AllowedPattern : ".+"
+
+Resources:
+  #  ____  _            _ _
+  # |  _ \(_)_ __   ___| (_)_ __   ___
+  # | |_) | | '_ \ / _ | | | '_ \ / _ \
+  # |  __/| | |_) |  __| | | | | |  __/
+  # |_|   |_| .__/ \___|_|_|_| |_|\___|
+  #         |_|
+  Pipeline:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+         Content:
+              S3Bucket: 
+              S3Key: 
+      

@@ -18,6 +18,9 @@ Parameters:
   StackName:
     Type: String
     AllowedPattern : ".+"
+  ComponentStackName:
+    Type: String
+    AllowedPattern : ".+"
 
 Resources:
   #  ____  _            _ _
@@ -200,9 +203,12 @@ Resources:
         EnvironmentVariables:
           - Name: REGION
             Value: !Sub ${AWS::Region}
-          - Name: ARTIFACT_BUCKET
-            Value: !ImportValue InfrastructureBucketName
+          - Name: COMPONENT_STACK_NAME
+            Value: !Ref ComponentStackName
+          - Name: PIPELINE_EXECUTION_ROLE
+            Value: !ImportValue PipelineExecutionRoleArn
+          - Name: CLOUDFORMATION_EXECUTION_ROLE
+            Value: !ImportValue CloudFormationExecutionRoleArn
       ServiceRole: !ImportValue CodeBuildServiceRoleArn
       Source:
         Type: CODEPIPELINE
-        BuildSpec: pipeline/buildspec_build_package.yml

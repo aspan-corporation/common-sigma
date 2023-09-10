@@ -5,16 +5,27 @@ phases:
     runtime-versions:
       nodejs: 18
     commands:
+      - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2 &
+      - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
       - npm install
   pre_build:
     commands:
       - echo pre_build
   build:
     commands:
+      # build shared code for common-lib Layer
       - npm run graphql:generate
       - cp ./schema.graphql ./lib
       - npx tsc
-      - npm publish
+
+      - sam build --use-container
+      - . ./assume-role.sh ${PIPELINE_EXECUTION_ROLE} build-deploy
+      - sam deploy --stack-name ${APP_STACK_NAME}
+                    --capabilities CAPABILITY_IAM
+                    --region ${REGION}
+                    --s3-bucket ac-infrastructure-bucket
+                    --no-fail-on-empty-changeset
+                    --role-arn ${CLOUDFORMATION_EXECUTION_ROLE}
   post_build:
     commands:
       - echo post_build

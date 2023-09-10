@@ -24,5 +24,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "types": "lib"
+  "types": "lib",
+  "dependencies": {
+  }
 }
