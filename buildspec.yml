@@ -11,6 +11,6 @@ phases:
   build:
     commands:
       - npm run graphql:generate
-      - cp ./schema.graphql ./lib
-      - npx tsc
+      - npm run graphql:copydef
+      - npm run graphql:transpile
       - npm publish
