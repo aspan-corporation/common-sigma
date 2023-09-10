@@ -71,10 +71,10 @@ Resources:
                       {
                         "BranchName": "${BranchName}",
                         "FullRepositoryId": "${FullRepositoryId}",
-                        "StackName": "${StackName}"
+                        "ComponentStackName": "${ComponentStackName}"
                       }
                     - 
-                      StackName: !Ref AWS::StackName
+                      ComponentStackName: !Ref ComponentStackName
               InputArtifacts:
                 - Name: SourceCodeAsZip
               RunOrder: 1
