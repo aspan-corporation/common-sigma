@@ -2,7 +2,7 @@ version: 0.2
 
 env:
   parameter-store:
-    NPM_TOKEN: /ac/npmjs
+    NPM_TOKEN: /aspan-corporation/npmjs/automation-token
 
 phases:
   install:
