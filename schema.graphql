@@ -1,16 +1,11 @@
-input SortTerm {
-  tag: String!
-  sortOrder: SortOrder!
-}
-
 type Tag {
-  name: String!
-  value: String
+  key: String!
+  value: String!
 }
 
 input TagInput {
-  name: String!
-  value: String
+  key: String!
+  value: String!
 }
 
 type FolderConnection {
@@ -28,8 +23,19 @@ input MetaDataInput {
   tags: [TagInput!]
 }
 
-type Mutation {
-  updateMetaData(id: String!, metaDataInput: MetaDataInput): MetaData
+enum SortOrder {
+  ASC
+  DESC
+}
+
+input SortTerm {
+  key: String!
+  sortOrder: SortOrder!
+}
+
+input SearchInput {
+  filter: MetaDataInput!
+  sorter: [SortTerm!]
 }
 
 type Query {
@@ -42,14 +48,8 @@ type Query {
   tags: [Tag!]!
 }
 
-input SearchInput {
-  filter: MetaDataInput!
-  sorter: [SortTerm!]
-}
-
-enum SortOrder {
-  ASC
-  DESC
+type Mutation {
+  updateMetaData(id: String!, metaDataInput: MetaDataInput): MetaData
 }
 
 schema {
