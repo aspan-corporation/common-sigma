@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion : 2010-09-09
 Description: >
-  ac pipeline
+  common-sigma pipeline
 
 # To deploy this template and connect to the main git branch, run this:
 # ```
