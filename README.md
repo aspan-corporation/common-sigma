@@ -1,3 +1,9 @@
-# Aspan Corporation code sharing
-
-All shared code will be delivered as a Lambda Layer
+# Building
+```
+  build:
+    commands:
+      - npm run graphql:generate
+      - npm run graphql:copydef
+      - npm run graphql:transpile
+      - npm publish
+```

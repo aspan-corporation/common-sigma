@@ -1,3 +1,40 @@
+schema {
+  query: Query
+  mutation: Mutation
+}
+
+type Query {
+  listFolder(id: String, nextToken: String, pageSize: Int!): FolderConnection
+  search(
+    searchInput: SearchInput
+    nextToken: String
+    pageSize: Int!
+  ): FolderConnection
+  keys(pageSize: Int!): KeysConnection
+  values(key: String, pageSize: Int!): ValuesConnection
+}
+
+type Mutation {
+  updateMetaData(id: String!, metaDataInput: MetaDataInput): MetaData
+}
+
+type FolderConnection {
+  folders: [MetaData!]
+  files: [MetaData!]
+  nextToken: String
+}
+
+type KeysConnection {
+  keys: [String!]
+  nextToken: String
+}
+
+type ValuesConnection {
+  key: String
+  values: [String!]
+  nextToken: String
+}
+
 type Tag {
   key: String!
   value: String!
@@ -6,12 +43,6 @@ type Tag {
 input TagInput {
   key: String!
   value: String!
-}
-
-type FolderConnection {
-  folders: [MetaData!]
-  files: [MetaData!]
-  nextToken: String
 }
 
 type MetaData {
@@ -38,21 +69,3 @@ input SearchInput {
   sorter: [SortTerm!]
 }
 
-type Query {
-  listFolder(id: String, nextToken: String, pageSize: Int!): FolderConnection
-  search(
-    searchInput: SearchInput
-    nextToken: String
-    pageSize: Int!
-  ): FolderConnection
-  tags: [Tag!]!
-}
-
-type Mutation {
-  updateMetaData(id: String!, metaDataInput: MetaDataInput): MetaData
-}
-
-schema {
-  query: Query
-  mutation: Mutation
-}
