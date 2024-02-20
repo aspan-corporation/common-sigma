@@ -4,14 +4,14 @@ schema {
 }
 
 type Query {
-  listFolder(id: String, nextToken: String, pageSize: Int!): FolderConnection
+  listFolder(id: String!, nextToken: String, pageSize: Int!): FolderConnection
   search(
-    searchInput: SearchInput
+    searchInput: SearchInput!
     nextToken: String
     pageSize: Int!
   ): FolderConnection
   keys(pageSize: Int!): KeysConnection
-  values(key: String, pageSize: Int!): ValuesConnection
+  values(key: String!, pageSize: Int!): ValuesConnection
 }
 
 type Mutation {
@@ -51,7 +51,7 @@ type MetaData {
 }
 
 input MetaDataInput {
-  tags: [TagInput!]
+  tags: [TagInput!]!
 }
 
 enum SortOrder {
