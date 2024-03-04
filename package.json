@@ -15,13 +15,13 @@
     "graphql:transpile": "npx tsc"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "^5.0.0",
-    "@graphql-codegen/introspection": "^4.0.0",
-    "@graphql-codegen/typescript": "^4.0.1",
-    "@graphql-codegen/typescript-resolvers": "^4.0.1",
-    "@types/node": "^20.6.0",
-    "graphql": "^16.8.0",
-    "typescript": "^5.2.2"
+    "@graphql-codegen/cli": "^5.0.2",
+    "@graphql-codegen/introspection": "^4.0.3",
+    "@graphql-codegen/typescript": "^4.0.6",
+    "@graphql-codegen/typescript-resolvers": "^4.0.6",
+    "@types/node": "^20.11.24",
+    "graphql": "^16.8.1",
+    "typescript": "^5.3.3"
   },
   "publishConfig": {
     "access": "public"
