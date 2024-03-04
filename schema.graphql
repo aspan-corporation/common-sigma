@@ -19,8 +19,7 @@ type Mutation {
 }
 
 type FolderConnection {
-  folders: [MetaData!]
-  files: [MetaData!]
+  entries: [MetaData!]
   nextToken: String
 }
 
