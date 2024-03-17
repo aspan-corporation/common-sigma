@@ -10,8 +10,8 @@ type Query {
     nextToken: String
     pageSize: Int!
   ): FolderConnection
-  keys(pageSize: Int!): KeysConnection
-  values(key: String!, pageSize: Int!): ValuesConnection
+  keys(nextToken: String, pageSize: Int!): KeysConnection
+  values(key: String!, nextToken: String, pageSize: Int!): ValuesConnection
 }
 
 type Mutation {
