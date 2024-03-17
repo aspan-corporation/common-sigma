@@ -1,6 +1,6 @@
 {
   "name": "@aspan-corporation/common-sigma",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "",
   "keywords": [],
   "main": "lib/index.js",
