@@ -15,4 +15,5 @@ phases:
       - npm run graphql:generate
       - npm run graphql:copydef
       - npm run graphql:transpile
+      - npm view @aspan-corporation/common-sigma
       - npm publish
